@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundraiser Page</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f3f3f3;
+            color: #333;
+        }
+
+        header {
+            background: #2b57ff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 30px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        .fundraiser-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 16px;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card h3 {
+            margin: 0 0 8px;
+        }
+
+        .card p {
+            margin: 4px 0;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .goal-text {
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .view-btn {
+            margin-top: 12px;
+            padding: 10px;
+            text-align: center;
+            background: #2b57ff;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .view-btn:hover {
+            background: #1d3bd1;
+        }
+
+        .user-info {
+            text-align: right;
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 10px;
+    }
+    .user-info button {
+            margin-left: 8px;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+}
+    </style>
+</head>
+<body>
+
+<header>
+    Fundraiser Hub
+</header>
+
+<div class="container">
+    <div class="search-bar">
+        <input id="search-input" type="text" placeholder="Search fundraisers (e.g. trip, shelter, robotics)...">
+    </div>
+
+    <div id="fundraiser-list" class="fundraiser-list">
+
+    </div>
+</div>
+
+<script>
+
+    const fundraisers = [
+        {
+            id: 'paws-smiles',
+            title: 'Paws and Smiles Club',
+            tagline: 'Help donate to animal shelters and promote our events.',
+            description: 'We are raising money in order to provide more donations and material for nearby animal shelters.',
+            goal: 1000,
+            startRaised: 400
+        },
+        {
+            id: 'korean-club',
+            title: 'Korean Club',
+            tagline: 'Help donate to fund our field trip to explore culture',
+            description: 'Your donations will help students in the club and in the class to have experiences in different countries and learn more about culture.',
+            goal: 2000,
+            startRaised: 850
+        },
+        {
+            id: 'robotics-club',
+            title: 'Bionic Bruins',
+            tagline: 'Support our team as we buy materials and attend competitions',
+            description: 'We need help paying registration and part fees for the robotics competition.',
+            goal: 1500,
+            startRaised: 250
+        }
+    ];
+
+    const listEl = document.getElementById('fundraiser-list');
+    const searchInput = document.getElementById('search-input');
+
+    function renderFundraisers(items) {
+        listEl.innerHTML = ''; // clear existing
+
+        items.forEach(f => {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            card.innerHTML = `
+                <div>
+                    <h3>${f.title}</h3>
+                    <p class="tagline">${f.tagline}</p>
+                    <p>${f.description}</p>
+                    <p class="goal-text">
+                        Goal: $${f.goal.toLocaleString()}  
+                        &nbsp;•&nbsp; Already raised: $${f.startRaised.toLocaleString()}
+                    </p>
+                </div>
+                <a class="view-btn" href="fundraiser.html?id=${encodeURIComponent(f.id)}">
+                    View & Donate
+                </a>
+            `;
+
+            listEl.appendChild(card);
+        });
+
+        if (items.length === 0) {
+            listEl.innerHTML = '<p>No fundraisers found. Try a different search term.</p>';
+        }
+    }
+
+    // Initial render
+    renderFundraisers(fundraisers);
+
+    // Simple search filter
+    searchInput.addEventListener('input', () => {
+        const term = searchInput.value.toLowerCase().trim();
+
+        const filtered = fundraisers.filter(f => {
+            return (
+                f.title.toLowerCase().includes(term) ||
+                f.description.toLowerCase().includes(term) ||
+                f.tagline.toLowerCase().includes(term)
+            );
+        });
+
+        renderFundraisers(filtered);
+    });
+</script>
+
+</body>
+</html>

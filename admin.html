@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin View</title>
+    <style>
+        .progress-bar {
+            width: 300px;
+            height: 20px;
+            background: lightgray;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 40%; /* example progress */
+            background: green;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Admin Dashboard</h1>
+
+    <h2>Donor List</h2>
+    <table border="1">
+        <tr>
+            <th>Email</th>
+            <th>Amount Donated</th>
+        </tr>
+        <tr>
+            <td>example@gmail.com</td>
+            <td>$20</td>
+        </tr>
+    </table>
+
+    <h2>Progress</h2>
+    <div class="progress-bar">
+        <div class="progress-fill"></div>
+    </div>
+
+    <h2>Edit Goal Amount</h2>
+    <input type="number" placeholder="Enter new goal amount">
+    <button>Save</button>
+
+</body>
+</html>

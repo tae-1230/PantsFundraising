@@ -16,10 +16,36 @@
         header {
             background: #2b57ff;
             color: white;
-            padding: 20px;
-            text-align: center;
-            font-size: 24px;
+            padding: 12px 20px;
+        }
+
+        .header-inner {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 22px;
             font-weight: bold;
+        }
+
+        .logo a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        header nav a {
+            color: #ffffff;
+            text-decoration: none;
+            margin-left: 16px;
+            font-size: 0.95rem;
+        }
+
+        header nav a:hover {
+            text-decoration: underline;
         }
 
         .container {
@@ -104,13 +130,19 @@
 <body>
 
 <header>
-    Support Our Fundraiser
+    <div class="header-inner">
+        <div class="logo"><a href="home.html">Fundraiser Hub</a></div>
+        <nav>
+            <a href="home.html">Search</a>
+            <a href="admin.html">Admin</a>
+        </nav>
+    </div>
 </header>
 
 <!-- SIGN IN PAGE -->
 <div id="login-page" class="container auth-container">
     <h2>Sign In</h2>
-    <p class="small-text">Sign in to access your fundraiser account.</p>
+    <p class="small-text">Sign in to access this fundraiser.</p>
     <form id="login-form">
         <div class="form-group">
             <label for="email">Email address</label>
@@ -127,8 +159,8 @@
 <!-- FUNDRAISER PAGE -->
 <div id="fundraiser-page" class="container hidden"
      data-goal="1000" data-start-raised="400">
-    <h2>About the Cause</h2>
-    <p>
+    <h2 id="fundraiser-title">About the Cause</h2>
+    <p id="fundraiser-description">
         We are raising funds to support skibidi.
         Every donation helps and is greatly appreciated!
     </p>
@@ -150,43 +182,69 @@
 </div>
 
 <script>
+    // Same data as on home.html
+    const fundraisers = [
+        {
+            id: 'skibidi',
+            title: 'Support Skibidi Fundraiser',
+            tagline: 'Help us support skibidi.',
+            description: 'We are raising funds to support skibidi. Every donation helps and is greatly appreciated!',
+            goal: 1000,
+            startRaised: 400
+        },
+        {
+            id: 'robotics-trip',
+            title: 'Robotics Club Nationals Trip',
+            tagline: 'Send our robotics team to nationals!',
+            description: 'Our high school robotics team qualified for nationals and needs help covering travel and lodging.',
+            goal: 5000,
+            startRaised: 1250
+        },
+        {
+            id: 'animal-shelter',
+            title: 'Local Animal Shelter Renovation',
+            tagline: 'Give cats and dogs a better home.',
+            description: 'We are renovating our local shelter to add more space, better medical facilities, and outdoor play areas.',
+            goal: 8000,
+            startRaised: 2300
+        }
+    ];
+
     document.addEventListener('DOMContentLoaded', function () {
-        // --- SIGN IN LOGIC (front-end only, not real authentication) ---
+        // --- SIGN IN LOGIC (not real authentication) ---
         const loginPage = document.getElementById('login-page');
         const fundraiserPage = document.getElementById('fundraiser-page');
         const loginForm = document.getElementById('login-form');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
 
-        loginForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-
-            const email = emailInput.value.trim();
-            const password = passwordInput.value.trim();
-
-            // Very simple check – in a real app you'd validate on the server
-            if (!email || !password) {
-                alert('Please enter both email and password.');
-                return;
-            }
-
-            // "Log in": hide login page, show fundraiser page
-            loginPage.classList.add('hidden');
-            fundraiserPage.classList.remove('hidden');
-        });
-
-        // --- FUNDRAISER / PROGRESS BAR LOGIC ---
         const progressFill = document.getElementById('progress-fill');
         const raisedAmountEl = document.getElementById('raised-amount');
         const goalAmountEl = document.getElementById('goal-amount');
         const percentFundedEl = document.getElementById('percent-funded');
         const donateBtn = document.getElementById('donate-btn');
+        const titleEl = document.getElementById('fundraiser-title');
+        const descEl = document.getElementById('fundraiser-description');
 
-        const goal = parseFloat(fundraiserPage.dataset.goal);            // e.g. 1000
-        let raised = parseFloat(fundraiserPage.dataset.startRaised);    // e.g. 400
+        // pick fundraiser based on ?id= param
+        const params = new URLSearchParams(window.location.search);
+        const fundraiserId = params.get('id') || 'skibidi';
+        const current = fundraisers.find(f => f.id === fundraiserId) || fundraisers[0];
+
+        // set page content based on chosen fundraiser
+        titleEl.textContent = current.title;
+        descEl.textContent = current.description;
+        fundraiserPage.dataset.goal = current.goal;
+        fundraiserPage.dataset.startRaised = current.startRaised;
+
+        let goal = parseFloat(fundraiserPage.dataset.goal);
+        let raised = parseFloat(fundraiserPage.dataset.startRaised);
 
         function formatMoney(value) {
-            return '$' + value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+            return '$' + value.toLocaleString(undefined, {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            });
         }
 
         function updateProgressBar() {
@@ -197,14 +255,29 @@
             percentFundedEl.textContent = percent.toFixed(1) + '%';
         }
 
-        // Initialize values on load
-        updateProgressBar();
+        // When user logs in, show fundraiser page
+        loginForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!email || !password) {
+                alert('Please enter both email and password.');
+                return;
+            }
+
+            loginPage.classList.add('hidden');
+            fundraiserPage.classList.remove('hidden');
+
+            // initialize values on first show
+            updateProgressBar();
+        });
 
         donateBtn.addEventListener('click', function () {
             const input = prompt('How much would you like to donate? (USD)');
             if (input === null) {
-                // user cancelled
-                return;
+                return; // user cancelled
             }
 
             const amount = parseFloat(input);

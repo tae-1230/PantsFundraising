@@ -171,17 +171,22 @@
 
     const listEl = document.getElementById('fundraiser-list');
     const searchInput = document.getElementById('search-input');
-
+    // Function to convert each of the fundraisers into cards to select from
     function renderFundraisers(items) {
+        // Clears the list of cards
         listEl.innerHTML = '';
-
+        
+        // Iterates through each fundraiser
         items.forEach(f => {
+            // Instantiates the card
             const card = document.createElement('div');
             card.className = 'card';
 
+            // Calculate percent of the fundraiser raised
             const percent = Math.min((f.startRaised / f.goal) * 100, 100);
             const percentText = isFinite(percent) ? percent.toFixed(1) : '0.0';
 
+            // Generates the card
             card.innerHTML = `
                 <div>
                     <h3>${f.title}</h3>
@@ -197,10 +202,12 @@
                     View &amp; Donate
                 </a>
             `;
-
+            
+            // Adds the card to the list of cards
             listEl.appendChild(card);
         });
 
+        // Checks if if there are no fundraisers and gives a error if so
         if (items.length === 0) {
             listEl.innerHTML = '<p>No fundraisers found. Try a different search term.</p>';
         }
@@ -211,8 +218,10 @@
 
     // Simple search filter
     searchInput.addEventListener('input', () => {
+        // Converts the search input into a lowercase and trimmed string(no whitespace on either side)
         const term = searchInput.value.toLowerCase().trim();
 
+        // searches through each fundraiser and checks if either the title, description, or tagline includes the search term
         const filtered = fundraisers.filter(f => {
             return (
                 f.title.toLowerCase().includes(term) ||
@@ -220,7 +229,8 @@
                 f.tagline.toLowerCase().includes(term)
             );
         });
-
+        
+        // Updates the fundraiser cards shown with the search results
         renderFundraisers(filtered);
     });
 </script>

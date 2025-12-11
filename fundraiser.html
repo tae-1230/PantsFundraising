@@ -215,12 +215,13 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         // --- SIGN IN LOGIC (not real authentication) ---
+        //Instantiating html elements in Javascript
         const loginPage = document.getElementById('login-page');
         const fundraiserPage = document.getElementById('fundraiser-page');
         const loginForm = document.getElementById('login-form');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
-
+    
         const progressFill = document.getElementById('progress-fill');
         const raisedAmountEl = document.getElementById('raised-amount');
         const goalAmountEl = document.getElementById('goal-amount');
@@ -243,6 +244,7 @@
         let goal = parseFloat(fundraiserPage.dataset.goal);
         let raised = parseFloat(fundraiserPage.dataset.startRaised);
 
+        // Formats money by forcing each value to have between 0-2 decimals
         function formatMoney(value) {
             return '$' + value.toLocaleString(undefined, {
                 minimumFractionDigits: 0,
@@ -250,28 +252,33 @@
             });
         }
 
+        // function to update the progress bar
         function updateProgressBar() {
             const percent = Math.min((raised / goal) * 100, 100); // cap at 100%
-            progressFill.style.width = percent + '%';
-            raisedAmountEl.textContent = formatMoney(raised);
-            goalAmountEl.textContent = formatMoney(goal);
-            percentFundedEl.textContent = percent.toFixed(1) + '%';
+            progressFill.style.width = percent + '%'; // Updates progress bar 
+            raisedAmountEl.textContent = formatMoney(raised); // Updates raised amount
+            goalAmountEl.textContent = formatMoney(goal); // Updates goal amount
+            percentFundedEl.textContent = percent.toFixed(1) + '%'; // Updates percent
         }
 
         // When user logs in, show fundraiser page
         loginForm.addEventListener('submit', function (event) {
             event.preventDefault();
 
+            // Gets the value of input and password and removes whitespaces
             const email = emailInput.value.trim();
             const password = passwordInput.value.trim();
 
+            // Checks if a email and pasword are submitted
             if (!email || !password) {
                 alert('Please enter both email and password.');
                 return;
             }
-
+            
+            //Hides the login page and shows the fundraiser page
             loginPage.classList.add('hidden');
             fundraiserPage.classList.remove('hidden');
+            // Code doesn't work but basically just hides admin until a person gets past the login page
             if(current.email != emailInput)
             {
                 admin.classList.remove('hidden');
@@ -280,6 +287,7 @@
             updateProgressBar();
         });
 
+        // Button to donate
         donateBtn.addEventListener('click', function () {
             const input = prompt('How much would you like to donate? (USD)');
             if (input === null) {
@@ -288,11 +296,13 @@
 
             const amount = parseFloat(input);
 
+            // Checks if input is valid if it isnt doesnt proceed to updating progress bar
             if (isNaN(amount) || amount <= 0) {
                 alert('Please enter a valid donation amount greater than 0.');
                 return;
             }
 
+            // updates progress bar, amount raised, and percent raised and gives a message to tell the user the donation was successful
             raised += amount;
             updateProgressBar();
             alert('Thank you for your donation of ' + formatMoney(amount) + '!');

@@ -134,7 +134,7 @@
         <div class="logo"><a href="home.html">Fundraiser Hub</a></div>
         <nav>
             <a href="home.html">Search</a>
-            <a href="admin.html">Admin</a>
+            <a id="admin" href="admin.html">Admin</a>
         </nav>
     </div>
 </header>
@@ -190,7 +190,8 @@
             tagline: 'Help us support skibidi.',
             description: 'We are raising funds to support skibidi. Every donation helps and is greatly appreciated!',
             goal: 1000,
-            startRaised: 400
+            startRaised: 400,
+            email: "test@gmail.com"
         },
         {
             id: 'robotics-trip',
@@ -198,7 +199,8 @@
             tagline: 'Send our robotics team to nationals!',
             description: 'Our high school robotics team qualified for nationals and needs help covering travel and lodging.',
             goal: 5000,
-            startRaised: 1250
+            startRaised: 1250,
+            email: "test@gmail.com"
         },
         {
             id: 'animal-shelter',
@@ -206,7 +208,8 @@
             tagline: 'Give cats and dogs a better home.',
             description: 'We are renovating our local shelter to add more space, better medical facilities, and outdoor play areas.',
             goal: 8000,
-            startRaised: 2300
+            startRaised: 2300,
+            email: "test@gmail.com"
         }
     ];
 
@@ -236,7 +239,7 @@
         descEl.textContent = current.description;
         fundraiserPage.dataset.goal = current.goal;
         fundraiserPage.dataset.startRaised = current.startRaised;
-
+        admin.classList.add('hidden');
         let goal = parseFloat(fundraiserPage.dataset.goal);
         let raised = parseFloat(fundraiserPage.dataset.startRaised);
 
@@ -269,7 +272,10 @@
 
             loginPage.classList.add('hidden');
             fundraiserPage.classList.remove('hidden');
-
+            if(current.email != emailInput)
+            {
+                admin.classList.remove('hidden');
+            }
             // initialize values on first show
             updateProgressBar();
         });

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fundraiser Hub – Home</title>
+    <title>Branham High School Fundraiser  – Home</title>
 
     <style>
         body {
@@ -122,6 +122,7 @@
 <header>
     <div class="header-inner">
         <div class="logo">Branham High School Fundraisers</div>
+        <div id="user-info" style="font-size: 0.8rem; opacity: 0.85;"></div>
         <nav>
             <a href="home.html">Home</a>
             <a href="home.html">Search</a>
@@ -140,13 +141,26 @@
 </div>
 
 <script>
-    // In a real app you might fetch this from a server.
-    // For this static site, we just hard-code some sample fundraisers.
-    const fundraisers = [
+    
+    if (!sessionStorage.getItem('sessionInitialized')) {
+    // clear everything
+    localStorage.removeItem('fh_donations');
+
+    // make sure its not the same session
+    sessionStorage.setItem('sessionInitialized', 'true');
+}
+    // shared keys (same as fundraiser and admin)
+    const STORAGE_KEYS = {
+        FUNDRAISERS: 'fh_fundraisers',
+        DONATIONS: 'fh_donations'
+    };
+
+    // default stats for each fundraiser
+    // default fundraisers
+   const DEFAULT_FUNDRAISERS = [
         {
             id: 'skibidi',
             title: 'Support Skibidi Fundraiser',
-            tagline: 'Help us support skibidi.',
             description: 'We are raising funds to support skibidi. Every donation helps and is greatly appreciated!',
             goal: 1000,
             startRaised: 400
@@ -154,7 +168,6 @@
         {
             id: 'robotics-trip',
             title: 'Robotics Club Nationals Trip',
-            tagline: 'Send our robotics team to nationals!',
             description: 'Our high school robotics team qualified for nationals and needs help covering travel and lodging.',
             goal: 5000,
             startRaised: 1250
@@ -162,15 +175,60 @@
         {
             id: 'animal-shelter',
             title: 'Local Animal Shelter Renovation',
-            tagline: 'Give cats and dogs a better home.',
             description: 'We are renovating our local shelter to add more space, better medical facilities, and outdoor play areas.',
             goal: 8000,
             startRaised: 2300
         }
     ];
 
+    function loadFundraisers() {
+        // user any updated goals from the admin or use the default
+        try {
+            const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.FUNDRAISERS) || 'null');
+            if (!Array.isArray(stored) || stored.length === 0) return DEFAULT_FUNDRAISERS.slice();
+
+            // merge by id
+            return DEFAULT_FUNDRAISERS.map(def => {
+                const match = stored.find(s => s.id === def.id);
+                return match ? { ...def, ...match } : def;
+            });
+        } catch (e) {
+            return DEFAULT_FUNDRAISERS.slice();
+        }
+    }
+
+    function loadDonations() {
+        try {
+            const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.DONATIONS) || '[]');
+            return Array.isArray(stored) ? stored : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function formatMoney(value) {
+        return '$' + value.toLocaleString(undefined, {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        });
+    }
+
     const listEl = document.getElementById('fundraiser-list');
     const searchInput = document.getElementById('search-input');
+
+    //make sure its the latest data
+    const fundraisers = loadFundraisers();
+    const donations = loadDonations();
+
+    //show extra per fundraiser
+    const donationsByFundraiser = {};
+    donations.forEach(d => {
+        const id = d.fundraiserId;
+        const amt = Number(d.amount) || 0;
+        if (!id || !amt) return;
+        if (!donationsByFundraiser[id]) donationsByFundraiser[id] = 0;
+        donationsByFundraiser[id] += amt;
+    });
 
     function renderFundraisers(items) {
         listEl.innerHTML = '';
@@ -179,8 +237,13 @@
             const card = document.createElement('div');
             card.className = 'card';
 
-            const percent = Math.min((f.startRaised / f.goal) * 100, 100);
-            const percentText = isFinite(percent) ? percent.toFixed(1) : '0.0';
+            const goal = Number(f.goal) || 0;
+            const baseRaised = Number(f.startRaised) || 0;
+            const extraRaised = donationsByFundraiser[f.id] || 0;
+            const totalRaised = baseRaised + extraRaised;
+
+            const percent = goal > 0 ? Math.min((totalRaised / goal) * 100, 100) : 0;
+            const percentText = percent.toFixed(1);
 
             card.innerHTML = `
                 <div>
@@ -188,8 +251,8 @@
                     <p class="tagline">${f.tagline}</p>
                     <p>${f.description}</p>
                     <p class="goal-text">
-                        Goal: $${f.goal.toLocaleString()}
-                        &nbsp;•&nbsp; Raised: $${f.startRaised.toLocaleString()}
+                        Goal: ${formatMoney(goal)}
+                        &nbsp;•&nbsp; Raised: ${formatMoney(totalRaised)}
                         &nbsp;(${percentText}%)
                     </p>
                 </div>
@@ -206,10 +269,10 @@
         }
     }
 
-    // Initial render
+    //initial
     renderFundraisers(fundraisers);
 
-    // Simple search filter
+    //simple search method
     searchInput.addEventListener('input', () => {
         const term = searchInput.value.toLowerCase().trim();
 

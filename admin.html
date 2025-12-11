@@ -1,48 +1,417 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Admin View</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundraiser Hub – Admin</title>
+
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f3f3f3;
+            color: #333;
+        }
+
+        header {
+            background: #2b57ff;
+            color: white;
+            padding: 12px 20px;
+        }
+
+        .header-inner {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .logo a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        header nav a {
+            color: #ffffff;
+            text-decoration: none;
+            margin-left: 16px;
+            font-size: 0.95rem;
+        }
+
+        header nav a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: 30px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+        }
+
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .card {
+            flex: 1;
+            min-width: 260px;
+            background: #fafafa;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.05);
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        button {
+            padding: 10px 16px;
+            background: #2b57ff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #1d3bd1;
+        }
+
         .progress-bar {
-            width: 300px;
+            background: #ddd;
+            width: 100%;
             height: 20px;
-            background: lightgray;
-            border-radius: 5px;
+            border-radius: 10px;
             overflow: hidden;
-            margin-bottom: 20px;
+            margin: 8px 0;
         }
 
         .progress-fill {
+            background: #4caf50;
+            width: 0%;
             height: 100%;
-            width: 40%; /* example progress */
-            background: green;
+            transition: width 0.4s ease;
+        }
+
+        .stat-line {
+            font-size: 0.95rem;
+            margin: 4px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 6px 8px;
+            text-align: left;
+        }
+
+        th {
+            background: #f0f0f0;
+        }
+
+        .no-data {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 6px;
         }
     </style>
 </head>
 <body>
 
+<header>
+    <div class="header-inner">
+        <div class="logo"><a href="home.html">Branham High School Fundraiser</a></div>
+        <nav>
+            <a href="home.html">Home</a>
+            <a href="home.html">Search</a>
+            <a href="admin.html">Admin</a>
+        </nav>
+    </div>
+</header>
+
+<div class="container">
     <h1>Admin Dashboard</h1>
 
-    <h2>Donor List</h2>
-    <table border="1">
-        <tr>
-            <th>Email</th>
-            <th>Amount Donated</th>
-        </tr>
-        <tr>
-            <td>example@gmail.com</td>
-            <td>$20</td>
-        </tr>
-    </table>
-
-    <h2>Progress</h2>
-    <div class="progress-bar">
-        <div class="progress-fill"></div>
+    <div class="card" style="margin-bottom: 20px;">
+        <label for="fundraiser-select">Select fundraiser</label>
+        <select id="fundraiser-select"></select>
     </div>
 
-    <h2>Edit Goal Amount</h2>
-    <input type="number" placeholder="Enter new goal amount">
-    <button>Save</button>
+    <div class="flex-row">
+        <div class="card">
+            <h2 id="fundraiser-title">Fundraiser Overview</h2>
+            <p id="fundraiser-description" style="font-size:0.9rem;"></p>
+
+            <h3>Goal Progress</h3>
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            <p class="stat-line">
+                <strong><span id="raised-amount">$0</span></strong> raised of
+                <strong><span id="goal-amount">$0</span></strong> goal
+                (<span id="percent-funded">0%</span> funded)
+            </p>
+            <p class="stat-line">
+                <span id="donor-count">0</span> donation(s) recorded.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>Edit Goal Amount</h2>
+            <label for="goal-input">Goal amount (USD)</label>
+            <input id="goal-input" type="number" min="1" step="1" placeholder="Enter new goal amount">
+            <button id="save-goal-btn">Save Goal</button>
+            <p id="goal-save-status" class="stat-line" style="color:#2b57ff; margin-top:8px;"></p>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+        <h2>Donor List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Amount</th>
+                    <th>Date / Time</th>
+                </tr>
+            </thead>
+            <tbody id="donor-rows">
+            </tbody>
+        </table>
+        <p id="no-donors-msg" class="no-data" style="display:none;">
+            No donations recorded yet for this fundraiser.
+        </p>
+    </div>
+</div>
+
+<script>
+
+    if (!sessionStorage.getItem('sessionInitialized')) {
+    // clear all previous donations
+    localStorage.removeItem('fh_donations');
+    // make sure session does not run
+    sessionStorage.setItem('sessionInitialized', 'true');
+}
+    // same keys used in home.html and fundraiser.html
+    const STORAGE_KEYS = {
+        FUNDRAISERS: 'fh_fundraisers',
+        DONATIONS: 'fh_donations'
+    };
+
+    // default fundraisers
+    const DEFAULT_FUNDRAISERS = [
+        {
+            id: 'skibidi',
+            title: 'Support Skibidi Fundraiser',
+            description: 'We are raising funds to support skibidi. Every donation helps and is greatly appreciated!',
+            goal: 1000,
+            startRaised: 400
+        },
+        {
+            id: 'robotics-trip',
+            title: 'Robotics Club Nationals Trip',
+            description: 'Our high school robotics team qualified for nationals and needs help covering travel and lodging.',
+            goal: 5000,
+            startRaised: 1250
+        },
+        {
+            id: 'animal-shelter',
+            title: 'Local Animal Shelter Renovation',
+            description: 'We are renovating our local shelter to add more space, better medical facilities, and outdoor play areas.',
+            goal: 8000,
+            startRaised: 2300
+        }
+    ];
+
+    function loadFundraisers() {
+        // saved fundraiser + default
+        try {
+            const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.FUNDRAISERS) || 'null');
+            if (Array.isArray(stored) && stored.length > 0) {
+                return stored;
+            }
+        } catch (e) {}
+        return DEFAULT_FUNDRAISERS.slice(); // copy
+    }
+
+    function saveFundraisers(fundraisers) {
+        localStorage.setItem(STORAGE_KEYS.FUNDRAISERS, JSON.stringify(fundraisers));
+    }
+
+    function loadDonations() {
+        try {
+            const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.DONATIONS) || '[]');
+            return Array.isArray(stored) ? stored : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function formatMoney(value) {
+        return '$' + value.toLocaleString(undefined, {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const fundraiserSelect = document.getElementById('fundraiser-select');
+        const titleEl = document.getElementById('fundraiser-title');
+        const descEl = document.getElementById('fundraiser-description');
+        const progressFill = document.getElementById('progress-fill');
+        const raisedAmountEl = document.getElementById('raised-amount');
+        const goalAmountEl = document.getElementById('goal-amount');
+        const percentFundedEl = document.getElementById('percent-funded');
+        const donorCountEl = document.getElementById('donor-count');
+        const donorRowsEl = document.getElementById('donor-rows');
+        const noDonorsMsgEl = document.getElementById('no-donors-msg');
+        const goalInputEl = document.getElementById('goal-input');
+        const saveGoalBtn = document.getElementById('save-goal-btn');
+        const goalSaveStatusEl = document.getElementById('goal-save-status');
+
+        let fundraisers = loadFundraisers();
+        let donations = loadDonations();
+
+        // dropdown
+        function renderFundraiserOptions() {
+            fundraiserSelect.innerHTML = '';
+            fundraisers.forEach(f => {
+                const opt = document.createElement('option');
+                opt.value = f.id;
+                opt.textContent = f.title;
+                fundraiserSelect.appendChild(opt);
+            });
+        }
+
+        // build donor table
+        function renderDonors(fundraiserId) {
+            donorRowsEl.innerHTML = '';
+            const filtered = donations
+                .filter(d => d.fundraiserId === fundraiserId)
+                .sort((a, b) => new Date(b.time || 0) - new Date(a.time || 0));
+
+            if (filtered.length === 0) {
+                noDonorsMsgEl.style.display = 'block';
+                return;
+            }
+            noDonorsMsgEl.style.display = 'none';
+
+            filtered.forEach(d => {
+                const tr = document.createElement('tr');
+                const when = d.time ? new Date(d.time).toLocaleString() : '';
+                tr.innerHTML = `
+                    <td>${d.email || ''}</td>
+                    <td>${formatMoney(Number(d.amount) || 0)}</td>
+                    <td>${when}</td>
+                `;
+                donorRowsEl.appendChild(tr);
+            });
+        }
+
+        // stats
+        function renderFundraiserDetails(fundraiserId) {
+            const f = fundraisers.find(x => x.id === fundraiserId);
+            if (!f) return;
+
+            const goal = Number(f.goal) || 0;
+            const baseRaised = Number(f.startRaised) || 0;
+            const extraRaised = donations
+                .filter(d => d.fundraiserId === f.id)
+                .reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+            const totalRaised = baseRaised + extraRaised;
+            const percent = goal > 0 ? Math.min((totalRaised / goal) * 100, 100) : 0;
+
+            titleEl.textContent = f.title;
+            descEl.textContent = f.description || '';
+
+            raisedAmountEl.textContent = formatMoney(totalRaised);
+            goalAmountEl.textContent = formatMoney(goal);
+            percentFundedEl.textContent = percent.toFixed(1) + '%';
+            donorCountEl.textContent = donations.filter(d => d.fundraiserId === f.id).length;
+            progressFill.style.width = percent + '%';
+
+            goalInputEl.value = goal > 0 ? goal : '';
+
+            renderDonors(f.id);
+        }
+
+        fundraiserSelect.addEventListener('change', function () {
+            const id = fundraiserSelect.value;
+            renderFundraiserDetails(id);
+        });
+
+        saveGoalBtn.addEventListener('click', function () {
+            const id = fundraiserSelect.value;
+            const newGoal = Number(goalInputEl.value);
+
+            if (!id) {
+                alert('Please select a fundraiser first.');
+                return;
+            }
+            if (!newGoal || newGoal <= 0) {
+                alert('Please enter a valid positive goal amount.');
+                return;
+            }
+
+            const idx = fundraisers.findIndex(f => f.id === id);
+            if (idx === -1) {
+                alert('Could not find this fundraiser.');
+                return;
+            }
+
+            fundraisers[idx].goal = newGoal;
+            saveFundraisers(fundraisers);
+            renderFundraiserDetails(id);
+
+            goalSaveStatusEl.textContent = 'Goal updated!';
+            setTimeout(() => goalSaveStatusEl.textContent = '', 2000);
+        });
+
+        // render
+        renderFundraiserOptions();
+        if (fundraisers.length > 0) {
+            fundraiserSelect.value = fundraisers[0].id;
+            renderFundraiserDetails(fundraisers[0].id);
+        }
+    });
+</script>
 
 </body>
 </html>

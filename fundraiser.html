@@ -131,7 +131,7 @@
 
 <header>
     <div class="header-inner">
-        <div class="logo"><a href="home.html">Fundraiser Hub</a></div>
+        <div class="logo"><a href="home.html">Branham High School Fundraiser </a></div>
         <nav>
             <a href="home.html">Search</a>
             <a href="admin.html">Admin</a>
@@ -179,15 +179,34 @@
     <br>
 
     <button id="donate-btn">Donate Now</button>
+    <a href="home.html" style="color:#2b57ff; font-weight:bold;">← Back to All Fundraisers</a>
 </div>
 
 <script>
-    // Same data as on home.html
-    const fundraisers = [
+
+    if (!sessionStorage.getItem('sessionInitialized')) {
+    // Clear all donations
+    localStorage.removeItem('fh_donations');
+
+    // Optional: also reset fundraiser goals to defaults
+    // localStorage.removeItem('fh_fundraisers');
+
+    // Mark session as initialized so it won't run again this session
+    sessionStorage.setItem('sessionInitialized', 'true');
+}
+    //shared storage keys
+    const STORAGE_KEYS = {
+        FUNDRAISERS: 'fh_fundraisers',  // for edited goals
+        DONATIONS: 'fh_donations'       // for recorded donations
+    };
+    let currentUser = null;
+    const USER_STORE = window.sessionStorage;
+
+    // default stats and info
+    const DEFAULT_FUNDRAISERS = [
         {
             id: 'skibidi',
             title: 'Support Skibidi Fundraiser',
-            tagline: 'Help us support skibidi.',
             description: 'We are raising funds to support skibidi. Every donation helps and is greatly appreciated!',
             goal: 1000,
             startRaised: 400
@@ -195,7 +214,6 @@
         {
             id: 'robotics-trip',
             title: 'Robotics Club Nationals Trip',
-            tagline: 'Send our robotics team to nationals!',
             description: 'Our high school robotics team qualified for nationals and needs help covering travel and lodging.',
             goal: 5000,
             startRaised: 1250
@@ -203,20 +221,55 @@
         {
             id: 'animal-shelter',
             title: 'Local Animal Shelter Renovation',
-            tagline: 'Give cats and dogs a better home.',
             description: 'We are renovating our local shelter to add more space, better medical facilities, and outdoor play areas.',
             goal: 8000,
             startRaised: 2300
         }
     ];
 
+    function loadFundraisers() {
+        // Use any goals saved by admin, fall back to defaults
+        try {
+            const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.FUNDRAISERS) || 'null');
+            if (!Array.isArray(stored) || stored.length === 0) return DEFAULT_FUNDRAISERS.slice();
+
+            // merge by id (keep default startRaised unless overridden)
+            const merged = DEFAULT_FUNDRAISERS.map(def => {
+                const match = stored.find(s => s.id === def.id);
+                return match ? { ...def, ...match } : def;
+            });
+            return merged;
+        } catch (e) {
+            return DEFAULT_FUNDRAISERS.slice();
+        }
+    }
+
+    function loadDonations() {
+        try {
+            const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.DONATIONS) || '[]');
+            return Array.isArray(stored) ? stored : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function formatMoney(value) {
+        return '$' + value.toLocaleString(undefined, {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
-        // --- SIGN IN LOGIC (not real authentication) ---
+        // dom elements
         const loginPage = document.getElementById('login-page');
         const fundraiserPage = document.getElementById('fundraiser-page');
         const loginForm = document.getElementById('login-form');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
+
+        loginPage.classList.remove('hidden');
+        fundraiserPage.classList.add('hidden');
 
         const progressFill = document.getElementById('progress-fill');
         const raisedAmountEl = document.getElementById('raised-amount');
@@ -226,29 +279,28 @@
         const titleEl = document.getElementById('fundraiser-title');
         const descEl = document.getElementById('fundraiser-description');
 
-        // pick fundraiser based on ?id= param
+        // reloading data
+        const fundraisers = loadFundraisers();
+        const donations = loadDonations();
+
+        // fundraiser based on parameters
         const params = new URLSearchParams(window.location.search);
         const fundraiserId = params.get('id') || 'skibidi';
         const current = fundraisers.find(f => f.id === fundraiserId) || fundraisers[0];
 
-        // set page content based on chosen fundraiser
+        // text
         titleEl.textContent = current.title;
         descEl.textContent = current.description;
-        fundraiserPage.dataset.goal = current.goal;
-        fundraiserPage.dataset.startRaised = current.startRaised;
 
-        let goal = parseFloat(fundraiserPage.dataset.goal);
-        let raised = parseFloat(fundraiserPage.dataset.startRaised);
-
-        function formatMoney(value) {
-            return '$' + value.toLocaleString(undefined, {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 2
-            });
-        }
+        // goal and raised
+        let goal = Number(current.goal) || 0;
+        const baseRaised = Number(current.startRaised) || 0;
+        let raised = baseRaised + donations
+            .filter(d => d.fundraiserId === current.id)
+            .reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
 
         function updateProgressBar() {
-            const percent = Math.min((raised / goal) * 100, 100); // cap at 100%
+            const percent = goal > 0 ? Math.min((raised / goal) * 100, 100) : 0;
             progressFill.style.width = percent + '%';
             raisedAmountEl.textContent = formatMoney(raised);
             goalAmountEl.textContent = formatMoney(goal);
@@ -267,12 +319,19 @@
                 return;
             }
 
+            // NEW: create a brand-new user object every login
+            currentUser = {
+                id: 'user_' + Date.now() + '_' + Math.random().toString(36).slice(2),
+                email: email
+            };
+            // (We DON'T save this to localStorage — it's only in memory)
+
             loginPage.classList.add('hidden');
             fundraiserPage.classList.remove('hidden');
 
-            // initialize values on first show
             updateProgressBar();
-        });
+});
+
 
         donateBtn.addEventListener('click', function () {
             const input = prompt('How much would you like to donate? (USD)');
@@ -288,11 +347,27 @@
             }
 
             raised += amount;
+
+            // save the donation into the progress and home page
+            const email = currentUser && currentUser.email ? currentUser.email : 'anonymous';
+            const userId = currentUser && currentUser.id ? currentUser.id : null;
+
+            let donations = JSON.parse(localStorage.getItem(STORAGE_KEYS.DONATIONS) || '[]');
+            donations.push({
+                email: email,
+                userId: userId,          // optional, but shows each login is unique
+                fundraiserId: current.id,
+                amount: amount,
+                time: new Date().toISOString()
+            });
+            localStorage.setItem(STORAGE_KEYS.DONATIONS, JSON.stringify(donations));
+
             updateProgressBar();
             alert('Thank you for your donation of ' + formatMoney(amount) + '!');
         });
     });
 </script>
+
 
 </body>
 </html>

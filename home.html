@@ -278,14 +278,14 @@
 
         const filtered = fundraisers.filter(f => {
             return (
-                f.title.toLowerCase().includes(term) ||
-                f.description.toLowerCase().includes(term) ||
-                f.tagline.toLowerCase().includes(term)
+                (f.title || '').toLowerCase().includes(term) ||
+                (f.description || '').toLowerCase().includes(term) ||
+                (f.tagline || '').toLowerCase().includes(term)
             );
         });
 
-        renderFundraisers(filtered);
-    });
+    renderFundraisers(filtered);
+});
 </script>
 
 </body>

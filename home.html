@@ -181,13 +181,17 @@
         }
     ];
 
+    /*
+        Loads fundraisers from the constant and adds them
+    */
+
     function loadFundraisers() {
-        // user any updated goals from the admin or use the default
+        // User any updated goals from the admin or use the default
         try {
             const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.FUNDRAISERS) || 'null');
             if (!Array.isArray(stored) || stored.length === 0) return DEFAULT_FUNDRAISERS.slice();
 
-            // merge by id
+            // Merge by id
             return DEFAULT_FUNDRAISERS.map(def => {
                 const match = stored.find(s => s.id === def.id);
                 return match ? { ...def, ...match } : def;
@@ -197,6 +201,10 @@
         }
     }
 
+    /*
+        Loads the donations for each fundraiser
+    */
+
     function loadDonations() {
         try {
             const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.DONATIONS) || '[]');
@@ -205,6 +213,11 @@
             return [];
         }
     }
+
+    /*
+        @param value -> the amount of money
+        Formats the money/donations that are showed
+    */
 
     function formatMoney(value) {
         return '$' + value.toLocaleString(undefined, {
@@ -216,11 +229,11 @@
     const listEl = document.getElementById('fundraiser-list');
     const searchInput = document.getElementById('search-input');
 
-    //make sure its the latest data
+    //Make sure its the latest data
     const fundraisers = loadFundraisers();
     const donations = loadDonations();
 
-    //show extra per fundraiser
+    //Show extra per fundraiser
     const donationsByFundraiser = {};
     donations.forEach(d => {
         const id = d.fundraiserId;
@@ -229,6 +242,11 @@
         if (!donationsByFundraiser[id]) donationsByFundraiser[id] = 0;
         donationsByFundraiser[id] += amt;
     });
+
+    /*
+        @param items -> items to display on the home screen
+        Formats the way that the items/cards/fundraisers and the money is displayed
+    */
 
     function renderFundraisers(items) {
         listEl.innerHTML = '';
@@ -272,7 +290,9 @@
     //initial
     renderFundraisers(fundraisers);
 
-    //simple search method
+    /*
+        Functions that checks the search bar
+    */
     searchInput.addEventListener('input', () => {
         const term = searchInput.value.toLowerCase().trim();
 

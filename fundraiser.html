@@ -190,7 +190,7 @@
 
     sessionStorage.setItem('sessionInitialized', 'true');
 }
-    //shared storage keys
+    //Shared storage keys
     const STORAGE_KEYS = {
         FUNDRAISERS: 'fh_fundraisers',  // for edited goals
         DONATIONS: 'fh_donations'       // for recorded donations
@@ -198,7 +198,7 @@
     let currentUser = null;
     const USER_STORE = window.sessionStorage;
 
-    // default stats and info
+    // Default stats and info
     const DEFAULT_FUNDRAISERS = [
         {
             id: 'skibidi',
@@ -223,6 +223,10 @@
         }
     ];
 
+    /*
+        Loads fundraisers from the constant and adds them
+    */
+
     function loadFundraisers() {
         // Use any goals saved by admin, fall back to defaults
         try {
@@ -240,6 +244,10 @@
         }
     }
 
+    /*
+        Loads the donations for each fundraiser
+    */
+
     function loadDonations() {
         try {
             const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.DONATIONS) || '[]');
@@ -248,6 +256,11 @@
             return [];
         }
     }
+
+    /*
+        @param value -> the amount of money
+        Formats the money/donations that are showed
+    */
 
     function formatMoney(value) {
         return '$' + value.toLocaleString(undefined, {

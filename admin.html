@@ -260,8 +260,11 @@
         }
     ];
 
+    /*
+        Loads fundraisers from the constant and adds them
+    */
+
     function loadFundraisers() {
-        // saved fundraiser + default
         try {
             const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.FUNDRAISERS) || 'null');
             if (Array.isArray(stored) && stored.length > 0) {
@@ -271,9 +274,17 @@
         return DEFAULT_FUNDRAISERS.slice(); // copy
     }
 
+    /*
+       Saves the fundraisesrs after edits
+    */
+
     function saveFundraisers(fundraisers) {
         localStorage.setItem(STORAGE_KEYS.FUNDRAISERS, JSON.stringify(fundraisers));
     }
+
+    /*
+        Loads the donations for each fundraiser
+    */
 
     function loadDonations() {
         try {
@@ -283,6 +294,11 @@
             return [];
         }
     }
+
+    /*
+        @param value -> the amount of money
+        Formats the money/donations that are showed
+    */
 
     function formatMoney(value) {
         return '$' + value.toLocaleString(undefined, {
@@ -309,7 +325,10 @@
         let fundraisers = loadFundraisers();
         let donations = loadDonations();
 
-        // dropdown
+        /*
+            Shows the options for the Fundraisers to edit
+        */
+
         function renderFundraiserOptions() {
             fundraiserSelect.innerHTML = '';
             fundraisers.forEach(f => {
@@ -320,7 +339,11 @@
             });
         }
 
-        // build donor table
+        /*
+            @param fundraiserId -> which fundraiser it is showing the information for
+            Shows all the donors for the given fundraiser
+
+        */
         function renderDonors(fundraiserId) {
             donorRowsEl.innerHTML = '';
             const filtered = donations
@@ -345,7 +368,10 @@
             });
         }
 
-        // stats
+        /*
+            @param fundraiserId -> which fundraiser it is showing the information for
+            Shows information about the fundraiser that is needed on the admin page
+         */
         function renderFundraiserDetails(fundraiserId) {
             const f = fundraisers.find(x => x.id === fundraiserId);
             if (!f) return;
@@ -372,10 +398,17 @@
             renderDonors(f.id);
         }
 
+        
         fundraiserSelect.addEventListener('change', function () {
             const id = fundraiserSelect.value;
             renderFundraiserDetails(id);
         });
+
+
+        /*
+            @param click -> Clicking on several things including type, money, etc.
+            Formats and helps guide admins how to change things up on their side
+        */
 
         saveGoalBtn.addEventListener('click', function () {
             const id = fundraiserSelect.value;
@@ -404,7 +437,7 @@
             setTimeout(() => goalSaveStatusEl.textContent = '', 2000);
         });
 
-        // render
+        //Render
         renderFundraiserOptions();
         if (fundraisers.length > 0) {
             fundraiserSelect.value = fundraisers[0].id;
